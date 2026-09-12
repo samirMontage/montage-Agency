@@ -300,6 +300,44 @@ body {
   display: none;
 }
 
+/*
+ * Мобильная оптимизация без изменения композиции:
+ * фигуры, сетка, блобы и ленты остаются на месте, но дорогостоящие
+ * бесконечные анимации при touch-scroll замораживаются.
+ */
+@media (max-width: 767px) {
+  .bg-grid {
+    animation: none !important;
+  }
+
+  .animate-blob,
+  .animate-blob-slow {
+    animation-duration: 60s !important;
+  }
+
+  .animate-float,
+  .animate-float-slow {
+    animation-duration: 18s !important;
+  }
+
+  /* Две видео-ленты продолжают двигаться, но медленнее и легче для GPU. */
+  .animate-marquee,
+  .animate-marquee-rev {
+    animation-duration: 65s !important;
+    will-change: transform;
+  }
+
+  .noise {
+    position: fixed;
+    mix-blend-mode: normal;
+    opacity: 0.025;
+  }
+
+  video {
+    transform: translateZ(0);
+  }
+}
+
 /* Уважение к reduce-motion */
 @media (prefers-reduced-motion: reduce) {
   html {
