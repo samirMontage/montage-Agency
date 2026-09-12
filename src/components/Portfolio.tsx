@@ -352,20 +352,28 @@ function AutoVideo({
     const el = ref.current;
     if (!el) return;
 
-    // На тач-устройствах играем только когда карточка видна
+    // На телефонах одновременно видны несколько дубликатов видео из ленты.
+    // Показываем первый кадр, но не декодируем все ролики во время скролла.
+    if (touch) {
+      const showFirstFrame = () => {
+        if (el.duration && Number.isFinite(el.duration)) el.currentTime = 0.01;
+      };
+      el.addEventListener("loadedmetadata", showFirstFrame, { once: true });
+      return () => el.removeEventListener("loadedmetadata", showFirstFrame);
+    }
+
+    // На компьютерах видео играет только в видимой карточке и при наведении.
     const io = new IntersectionObserver(
       ([entry]) => {
         inView.current = entry.isIntersecting;
-        if (touch && entry.isIntersecting) el.play().catch(() => {});
         if (!entry.isIntersecting) el.pause();
       },
       { threshold: 0.3 }
     );
     io.observe(el);
 
-    const onEnter = () => !touch && el.play().catch(() => {});
+    const onEnter = () => el.play().catch(() => {});
     const onLeave = () => {
-      if (touch) return;
       el.pause();
       el.currentTime = 0;
     };
