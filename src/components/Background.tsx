@@ -65,13 +65,44 @@ export function Background() {
   );
 }
 
-/** Тонкая полоса прогресса чтения страницы */
-export function ScrollProgress({ progress }: { progress: number }) {
+/**
+ * Полоса прогресса обновляет DOM напрямую. Так при прокрутке не
+ * перерисовывается всё React-приложение вместе с видео и лайтбоксом.
+ */
+export function ScrollProgress() {
+  const barRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const bar = barRef.current;
+    if (!bar) return;
+    let raf = 0;
+
+    const update = () => {
+      raf = 0;
+      const height = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = height > 0 ? window.scrollY / height : 0;
+      bar.style.transform = `scaleX(${progress})`;
+    };
+    const schedule = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
   return (
     <div className="fixed inset-x-0 top-0 z-[80] h-[2px] bg-transparent" aria-hidden>
       <div
+        ref={barRef}
         className="h-full origin-left bg-gradient-to-r from-accent/40 via-accent to-white shadow-[0_0_12px_rgba(0,212,255,0.8)]"
-        style={{ transform: `scaleX(${progress})` }}
+        style={{ transform: "scaleX(0)" }}
       />
     </div>
   );
