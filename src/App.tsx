@@ -9,16 +9,13 @@ import { Faq } from "./components/Faq";
 import { Contact } from "./components/Contact";
 import { Footer } from "./components/Footer";
 import { Background, ScrollProgress } from "./components/Background";
-import { useScrollProgress } from "./hooks/useAnim";
 
 export default function App() {
-  const progress = useScrollProgress();
-
   return (
     <div className="relative min-h-screen bg-ink text-white antialiased">
       <Background />
       <div className="noise" aria-hidden />
-      <ScrollProgress progress={progress} />
+      <ScrollProgress />
       <Navbar />
       <main className="relative z-10">
         <Hero />
